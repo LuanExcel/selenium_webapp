@@ -16,5 +16,5 @@ RUN ./venv/bin/gunicorn --version
 
 COPY . .
 
-CMD ["./venv/bin/gunicorn", "main:app", "--bind", "0.0.0.0:${PORT}"]
+CMD ./venv/bin/gunicorn main:app --bind 0.0.0.0:$PORT
 
