@@ -1,27 +1,18 @@
-FROM python:3.10-slim
+FROM cypress/browsers:latest
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ARG PORT=443
+ENV PORT=${PORT}
 
-# Instala dependências do Chrome
-RUN apt-get update && apt-get install -y wget gnupg2 curl unzip xvfb \
-    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update && apt-get install -y google-chrome-stable
+RUN apt-get update && apt-get install -y python3 python3-venv python3-pip
 
-# Cria diretório
 WORKDIR /app
 
-# Copia e instala dependências Python
 COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
 
-# Copia o código
+RUN python3 -m venv venv
+RUN ./venv/bin/pip install --upgrade pip
+RUN ./venv/bin/pip install -r requirements.txt
+
 COPY . .
 
-# Porta default
-ENV PORT=8080
-
-# Executa
-CMD ["gunicorn", "main:app", "--bind", "0.0.0.0:$PORT"]
+CMD sh -c "./venv/bin/gunicorn main:app --bind 0.0.0.0:${PORT}"
