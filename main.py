@@ -20,6 +20,9 @@ def download_selenium():
     data = {"Page Title" : title, "Pais": pais}
     return data
     
+@app.route('/ping')
+def ping():
+    return 'pong'    
 
 @app.route('/', methods = ['GET','POST'])
 def home():
