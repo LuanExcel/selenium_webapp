@@ -1,25 +1,26 @@
-# Define variável de ambiente para porta
-ARG PORT=443
-ENV PORT=${PORT}
-
 # Usa imagem base com navegador
 FROM cypress/browsers:latest
 
-# Atualiza pacotes e instala Python e pip
+# Define variável de build e de ambiente
+ARG PORT=443
+ENV PORT=${PORT}
+
+# Instala dependências
 RUN apt-get update && apt-get install -y python3 python3-pip
 
-# Define diretório de trabalho
+# Define caminho do Python local
+RUN echo $(python3 -m site --user-base)
+
+# Copia os arquivos necessários
+COPY requirements.txt /app/requirements.txt
 WORKDIR /app
 
-# Copia dependências e instala
-COPY requirements.txt /app/requirements.txt
-RUN pip3 install --no-cache-dir -r requirements.txt
+# Instala pacotes do requirements
+RUN pip3 install -r requirements.txt
 
-# Copia o restante dos arquivos
-COPY . /app
+# Copia o restante do código
+COPY . .
 
-# Expõe a porta
-EXPOSE ${PORT}
+# Executa o app
+CMD ["gunicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT}"]
 
-# Comando para rodar o app com gunicorn
-CMD ["gunicorn", "main:app", "--bind", "0.0.0.0:443"]
