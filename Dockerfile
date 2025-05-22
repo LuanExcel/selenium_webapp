@@ -9,13 +9,11 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-# Cria e ativa ambiente virtual e instala dependências
 RUN python3 -m venv venv
 RUN ./venv/bin/pip install --upgrade pip
 RUN ./venv/bin/pip install -r requirements.txt
+RUN ./venv/bin/gunicorn --version
 
 COPY . .
 
-CMD ["./venv/bin/gunicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT}"]
-
-
+CMD ./venv/bin/gunicorn main:app --host 0.0.0.0 --port $PORT
